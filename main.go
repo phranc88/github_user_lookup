@@ -38,8 +38,13 @@ func main() {
 	username := os.Args[1]
 	url := "https://api.github.com/users/" + username
 
-	response, err := http.Get(url)
+	request, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		fmt.Println(red+"Could not create request:"+reset, err)
+		return
+	}
 
+	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		fmt.Println(red+"Request failed..."+reset, err)
 		return
@@ -51,12 +56,6 @@ func main() {
 		return
 	}
 	fmt.Println("Status:", green+response.Status+reset)
-
-	// body, err := io.ReadAll(response.Body)
-	// if err != nil {
-	// 	fmt.Println(red+"Could not read response:"+reset, err)
-	// 	return
-	// }
 
 	var user GitHubUser
 
