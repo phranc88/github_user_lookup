@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 const (
@@ -28,36 +29,38 @@ type GitHubUser struct {
 }
 
 func fetchGitHubUser(username string) (*GitHubUser, error) {
+
 	url := "https://api.github.com/users/" + username
 
 	request, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		fmt.Println(red+"Could not create request:"+reset, err)
 		return nil, err
 	}
 
-	response, err := http.DefaultClient.Do(request)
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	response, err := client.Do(request)
 	if err != nil {
-		fmt.Println(red+"Request failed..."+reset, err)
 		return nil, err
 	}
+
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		fmt.Println("GitHub returned:", yellow+response.Status+reset)
-		return nil, err
+
+		return nil, fmt.Errorf("GitHub returned: %s", response.Status)
 	}
-	fmt.Println("Status:", green+response.Status+reset)
 
 	var user GitHubUser
 
 	err = json.NewDecoder(response.Body).Decode(&user)
 	if err != nil {
-		fmt.Println(red+"Could not parse JSON..."+reset, err)
 		return nil, err
 	}
 
-	return &user, err
+	return &user, nil
 }
 
 func main() {
