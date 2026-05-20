@@ -27,6 +27,39 @@ type GitHubUser struct {
 	HTMLURL     string `json:"html_url"`
 }
 
+func fetchGitHubUser(username string) (*GitHubUser, error) {
+	url := "https://api.github.com/users/" + username
+
+	request, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		fmt.Println(red+"Could not create request:"+reset, err)
+		return nil, err
+	}
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		fmt.Println(red+"Request failed..."+reset, err)
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		fmt.Println("GitHub returned:", yellow+response.Status+reset)
+		return nil, err
+	}
+	fmt.Println("Status:", green+response.Status+reset)
+
+	var user GitHubUser
+
+	err = json.NewDecoder(response.Body).Decode(&user)
+	if err != nil {
+		fmt.Println(red+"Could not parse JSON..."+reset, err)
+		return nil, err
+	}
+
+	return &user, err
+}
+
 func main() {
 	fmt.Println(yellow + "GitHub user lookup..." + reset)
 
@@ -36,32 +69,9 @@ func main() {
 	}
 
 	username := os.Args[1]
-	url := "https://api.github.com/users/" + username
-
-	request, err := http.NewRequest(http.MethodGet, url, nil)
+	user, err := fetchGitHubUser(username)
 	if err != nil {
-		fmt.Println(red+"Could not create request:"+reset, err)
-		return
-	}
-
-	response, err := http.DefaultClient.Do(request)
-	if err != nil {
-		fmt.Println(red+"Request failed..."+reset, err)
-		return
-	}
-	defer response.Body.Close()
-
-	if response.StatusCode != http.StatusOK {
-		fmt.Println("GitHub returned:", yellow+response.Status+reset)
-		return
-	}
-	fmt.Println("Status:", green+response.Status+reset)
-
-	var user GitHubUser
-
-	err = json.NewDecoder(response.Body).Decode(&user)
-	if err != nil {
-		fmt.Println(red+"Could not parse JSON..."+reset, err)
+		fmt.Println(red+"Error:"+reset, err)
 		return
 	}
 
