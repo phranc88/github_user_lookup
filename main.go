@@ -37,6 +37,9 @@ func fetchGitHubUser(username string) (*GitHubUser, error) {
 		return nil, err
 	}
 
+	request.Header.Set("Accept", "application/vnd.github+json")
+	request.Header.Set("User-Agent", "go-api-practice")
+
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 	}
