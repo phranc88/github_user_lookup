@@ -51,8 +51,11 @@ func fetchGitHubUser(username string) (*GitHubUser, error) {
 
 	defer response.Body.Close()
 
-	if response.StatusCode != http.StatusOK {
+	if response.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("user %q was not found", username)
+	}
 
+	if response.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("GitHub returned: %s", response.Status)
 	}
 
