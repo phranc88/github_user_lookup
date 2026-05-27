@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"time"
@@ -30,9 +31,9 @@ type GitHubUser struct {
 
 func fetchGitHubUser(username string) (*GitHubUser, error) {
 
-	url := "https://api.github.com/users/" + username
+	apiURL := "https://api.github.com/users/" + url.PathEscape(username)
 
-	request, err := http.NewRequest(http.MethodGet, url, nil)
+	request, err := http.NewRequest(http.MethodGet, apiURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -70,13 +71,16 @@ func fetchGitHubUser(username string) (*GitHubUser, error) {
 }
 
 func main() {
+	// Prints a friendy message to user...
 	fmt.Println(yellow + "GitHub user lookup..." + reset)
 
+	// This part checks to see if the user passed in any arguments
 	if len(os.Args) < 2 {
 		fmt.Println(yellow + "Please provide a GitHub username" + reset)
 		return
 	}
 
+	// The username will be the argument provided by the user
 	username := os.Args[1]
 	user, err := fetchGitHubUser(username)
 	if err != nil {
@@ -84,6 +88,7 @@ func main() {
 		return
 	}
 
+	// print some cool stuff to the terminal :P
 	fmt.Println("Login:", green+user.Login+reset)
 	fmt.Println("Name:", green+user.Name+reset)
 	fmt.Println("Public repos:", orange+strconv.Itoa(user.PublicRepos)+reset)
