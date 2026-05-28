@@ -21,6 +21,8 @@ const (
 	reset   = "\033[0m"
 )
 
+const githubAPIBaseURL = "https://api.github.com"
+
 type GitHubUser struct {
 	Login       string `json:"login"`
 	Name        string `json:"name"`
@@ -29,9 +31,9 @@ type GitHubUser struct {
 	HTMLURL     string `json:"html_url"`
 }
 
-func fetchGitHubUser(username string) (*GitHubUser, error) {
+func fetchGitHubUser(client *http.Client, username string) (*GitHubUser, error) {
 
-	apiURL := "https://api.github.com/users/" + url.PathEscape(username)
+	apiURL := githubAPIBaseURL + "/users/" + url.PathEscape(username)
 
 	request, err := http.NewRequest(http.MethodGet, apiURL, nil)
 	if err != nil {
@@ -40,10 +42,6 @@ func fetchGitHubUser(username string) (*GitHubUser, error) {
 
 	request.Header.Set("Accept", "application/vnd.github+json")
 	request.Header.Set("User-Agent", "go-api-practice")
-
-	client := &http.Client{
-		Timeout: 10 * time.Second,
-	}
 
 	response, err := client.Do(request)
 	if err != nil {
@@ -82,7 +80,11 @@ func main() {
 
 	// The username will be the argument provided by the user
 	username := os.Args[1]
-	user, err := fetchGitHubUser(username)
+
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	user, err := fetchGitHubUser(client, username)
 	if err != nil {
 		fmt.Println(red+"Error:"+reset, err)
 		return
