@@ -31,9 +31,14 @@ type GitHubUser struct {
 	HTMLURL     string `json:"html_url"`
 }
 
-func fetchGitHubUser(client *http.Client, username string) (*GitHubUser, error) {
+type GitHubClient struct {
+	httpClient *http.Client
+	baseURL    string
+}
 
-	apiURL := githubAPIBaseURL + "/users/" + url.PathEscape(username)
+func (gh GitHubClient) fetchUser(username string) (*GitHubUser, error) {
+
+	apiURL := gh.baseURL + "/users/" + url.PathEscape(username)
 
 	request, err := http.NewRequest(http.MethodGet, apiURL, nil)
 	if err != nil {
@@ -43,7 +48,7 @@ func fetchGitHubUser(client *http.Client, username string) (*GitHubUser, error) 
 	request.Header.Set("Accept", "application/vnd.github+json")
 	request.Header.Set("User-Agent", "go-api-practice")
 
-	response, err := client.Do(request)
+	response, err := gh.httpClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -81,10 +86,15 @@ func main() {
 	// The username will be the argument provided by the user
 	username := os.Args[1]
 
-	client := &http.Client{
-		Timeout: 10 * time.Second,
+	githubClient := GitHubClient{
+		httpClient: &http.Client{
+			Timeout: 10 * time.Second,
+		},
+		baseURL: githubAPIBaseURL,
 	}
-	user, err := fetchGitHubUser(client, username)
+
+	user, err := githubClient.fetchUser(username)
+
 	if err != nil {
 		fmt.Println(red+"Error:"+reset, err)
 		return
