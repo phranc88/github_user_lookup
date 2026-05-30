@@ -36,6 +36,15 @@ type GitHubClient struct {
 	baseURL    string
 }
 
+func newGitHubClient() GitHubClient {
+	return GitHubClient{
+		httpClient: &http.Client{
+			Timeout: 10 * time.Second,
+		},
+		baseURL: githubAPIBaseURL,
+	}
+}
+
 func (gh GitHubClient) fetchUser(username string) (*GitHubUser, error) {
 
 	apiURL := gh.baseURL + "/users/" + url.PathEscape(username)
@@ -86,12 +95,7 @@ func main() {
 	// The username will be the argument provided by the user
 	username := os.Args[1]
 
-	githubClient := GitHubClient{
-		httpClient: &http.Client{
-			Timeout: 10 * time.Second,
-		},
-		baseURL: githubAPIBaseURL,
-	}
+	githubClient := newGitHubClient()
 
 	user, err := githubClient.fetchUser(username)
 
