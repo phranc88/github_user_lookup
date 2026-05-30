@@ -14,7 +14,7 @@ func TestFetchUser(t *testing.T) {
 			"name": "The Octocat",
 			"public_repos": 8,
 			"followers": 100,
-			"html_url": "https://github.com/octocat
+			"html_url": "https://github.com/octocat"
 		}`)
 	}))
 	defer server.Close()
@@ -30,6 +30,6 @@ func TestFetchUser(t *testing.T) {
 	}
 
 	if user.Login != "octocat" {
-		t.Errorf("expected lofin %q, got %q", "octocat", user.Login)
+		t.Errorf("expected login %q, got %q", "octocat", user.Login)
 	}
 }
