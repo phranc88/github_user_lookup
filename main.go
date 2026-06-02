@@ -29,6 +29,7 @@ type GitHubUser struct {
 	PublicRepos int    `json:"public_repos"`
 	Followers   int    `json:"followers"`
 	HTMLURL     string `json:"html_url"`
+	BIO         string `json:"bio`
 }
 
 type GitHubClient struct {
@@ -110,5 +111,6 @@ func main() {
 	fmt.Println("Public repos:", orange+strconv.Itoa(user.PublicRepos)+reset)
 	fmt.Println("Followers:", magenta+strconv.Itoa(user.Followers)+reset)
 	fmt.Println("Profile:", cyan+user.HTMLURL+reset)
+	fmt.Println("Bio:", orange+user.BIO+reset)
 
 }
