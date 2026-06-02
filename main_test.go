@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -49,6 +50,10 @@ func TestFetchUserNotFound(t *testing.T) {
 
 	if err == nil {
 		t.Fatal("expected an error, got nil")
+	}
+
+	if !strings.Contains(err.Error(), `user "missing-user" was not found`) {
+		t.Errorf("expected not found erro, got %q", err.Error())
 	}
 
 	if user != nil {

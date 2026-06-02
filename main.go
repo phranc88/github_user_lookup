@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// Cool Colors for output.
 const (
 	red     = "\033[31m"
 	green   = "\033[32m"
@@ -29,7 +30,7 @@ type GitHubUser struct {
 	PublicRepos int    `json:"public_repos"`
 	Followers   int    `json:"followers"`
 	HTMLURL     string `json:"html_url"`
-	BIO         string `json:"bio`
+	BIO         string `json:"bio"`
 }
 
 type GitHubClient struct {
