@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"time"
+
+	"github.com/spf13/cobra"
 )
 
 // Cool Colors for output.
@@ -88,30 +89,37 @@ func main() {
 	// Prints a friendy message to user...
 	fmt.Println(yellow + "GitHub user lookup..." + reset)
 
-	// This part checks to see if the user passed in any arguments
-	if len(os.Args) < 2 {
-		fmt.Println(yellow + "Please provide a GitHub username" + reset)
-		return
+	rootCmd := &cobra.Command{
+		Use:   "github-tool",
+		Short: "Look up GitHub inofrmation from the command line",
 	}
 
-	// The username will be the argument provided by the user
-	username := os.Args[1]
+	userCmd := &cobra.Command{
+		Use:   "user <username>",
+		Short: "Look up a GitHub user",
+		Args:  cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			username := args[0]
 
-	githubClient := newGitHubClient()
+			githubClient := newGitHubClient()
 
-	user, err := githubClient.fetchUser(username)
-
-	if err != nil {
-		fmt.Println(red+"Error:"+reset, err)
-		return
+			user, err := githubClient.fetchUser(username)
+			if err != nil {
+				fmt.Println(red+"Error:"+reset, err)
+				return
+			}
+			// print some cool stuff to the terminal :P
+			fmt.Println("Login:", green+user.Login+reset)
+			fmt.Println("Name:", green+user.Name+reset)
+			fmt.Println("Public repos:", orange+strconv.Itoa(user.PublicRepos)+reset)
+			fmt.Println("Followers:", magenta+strconv.Itoa(user.Followers)+reset)
+			fmt.Println("Profile:", cyan+user.HTMLURL+reset)
+			fmt.Println("Bio:", orange+user.BIO+reset)
+		},
 	}
 
-	// print some cool stuff to the terminal :P
-	fmt.Println("Login:", green+user.Login+reset)
-	fmt.Println("Name:", green+user.Name+reset)
-	fmt.Println("Public repos:", orange+strconv.Itoa(user.PublicRepos)+reset)
-	fmt.Println("Followers:", magenta+strconv.Itoa(user.Followers)+reset)
-	fmt.Println("Profile:", cyan+user.HTMLURL+reset)
-	fmt.Println("Bio:", orange+user.BIO+reset)
-
+	rootCmd.AddCommand(userCmd)
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(red+"Error:", err)
+	}
 }
